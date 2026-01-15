@@ -1,24 +1,30 @@
-import { JSX } from "solid-js";
+import { cn } from "../../lib/utils";
 
 interface IconProps {
   stroke?: number;
+  size?: number;
+  class?: string;
 }
 
 export function Darken(props: IconProps) {
   return (
     <svg
-      width="16"
-      height="16"
+      width={props.size ?? 16}
+      height={props.size ?? 16}
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
-      stroke-width={props.stroke ?? 1.5}
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      class={cn(
+        "block select-none shrink-0 transition-all duration-100 text-foreground",
+        props.class
+      )}
     >
       <title>Darken</title>
-      <circle cx="12" cy="12" r="5" />
-      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+      <circle cx="12" cy="12" r="2" fill="currentColor" />
+      <path d="M7.5 7.5L1 1M7.5 7.5L7.5 3M7.5 7.5L3 7.5" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
+      <path d="M7.5 16.5L1 23M7.5 16.5L7.5 21M7.5 16.5L3 16.5" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
+      <path d="M16.5 7.5L23 1M16.5 7.5L21 7.5M16.5 7.5V3" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
+      <path d="M16.5 16.5L23 23M16.5 16.5L21 16.5M16.5 16.5V21" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
     </svg>
   );
 }
@@ -26,18 +32,22 @@ export function Darken(props: IconProps) {
 export function Lighten(props: IconProps) {
   return (
     <svg
-      width="16"
-      height="16"
+      width={props.size ?? 16}
+      height={props.size ?? 16}
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
-      stroke-width={props.stroke ?? 1.5}
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      class={cn(
+        "block select-none shrink-0 transition-all duration-100 text-foreground",
+        props.class
+      )}
     >
       <title>Lighten</title>
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+      <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
+      <path d="M22.5 1.5L18 6M22.5 1.5L22.5 6M22.5 1.5L18 1.5" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
+      <path d="M1.5 1.5L6 6M1.5 1.5L6 1.5M1.5 1.5V6" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
+      <path d="M1.5 22.5L6 18M1.5 22.5L6 22.5M1.5 22.5V18" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
+      <path d="M22.5 22.5L18 18M22.5 22.5L18 22.5M22.5 22.5V18" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
     </svg>
   );
 }
@@ -45,53 +55,62 @@ export function Lighten(props: IconProps) {
 export function Eraser(props: IconProps) {
   return (
     <svg
-      width="16"
-      height="16"
+      width={props.size ?? 16}
+      height={props.size ?? 16}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       stroke-width={props.stroke ?? 1.5}
       stroke-linecap="round"
       stroke-linejoin="round"
+      class={props.class}
     >
-      <title>Eraser</title>
-      <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21" />
-      <path d="M22 21H7" />
-      <path d="m5 11 9 9" />
+      <title>Erase</title>
+      <g clip-path="url(#clip0_3957_45489)">
+        <path d="M6.82419 13.5288L2.30016 19.0289L6.5 22.5L10.7422 22.5L13.4615 19.0982M6.82419 13.5288L14.9844 3.69531L21.614 9.2582L13.4615 19.0982M6.82419 13.5288L13.4615 19.0982" stroke="currentColor" />
+        <path d="M2.24787 22.506L21.8003 22.5229" stroke="currentColor" />
+      </g>
+      <defs>
+        <clipPath id="clip0_3957_45489">
+          <rect width="24" height="24" fill="currentColor" />
+        </clipPath>
+      </defs>
     </svg>
   );
 }
 
-export function Brush() {
+export function Brush(props: IconProps = {}) {
   return (
     <svg
-      width="16"
-      height="16"
+      width={props.size ?? 16}
+      height={props.size ?? 16}
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
-      stroke-width="1.5"
+      stroke="currentcolor"
+      stroke-width={props.stroke ?? 1.5}
       stroke-linecap="round"
       stroke-linejoin="round"
+      class={props.class}
     >
       <title>Brush</title>
-      <path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08" />
-      <path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z" />
+      <path d="M14 15L11 18L8 15.5L10.5 12M14 15L23 1L10.5 12M14 15L10.5 12" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
+      <path d="M4.5 17C5.49644 15.4986 7.00356 15.3347 8.00356 15.5014L11.0036 18C10.0036 24 -1.99644 22 1.00356 22C4.00356 22 3.50356 18.5014 4.5 17Z" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
     </svg>
   );
 }
 
-export function CloseIcon() {
+export function CloseIcon(props: IconProps = {}) {
   return (
     <svg
-      width="16"
-      height="16"
+      width={props.size ?? 16}
+      height={props.size ?? 16}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1.5"
+      stroke-width={props.stroke ?? 1.5}
       stroke-linecap="round"
       stroke-linejoin="round"
+      class={props.class}
     >
       <title>Close</title>
       <path d="M18 6 6 18M6 6l12 12" />
@@ -99,22 +118,24 @@ export function CloseIcon() {
   );
 }
 
-export function UploadPicture(props: IconProps) {
+export function UploadPicture(props: IconProps = {}) {
   return (
     <svg
-      width="16"
-      height="16"
+      width={props.size ?? 16}
+      height={props.size ?? 16}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       stroke-width={props.stroke ?? 1.5}
       stroke-linecap="round"
       stroke-linejoin="round"
+      class={props.class}
     >
-      <title>Upload</title>
-      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-      <circle cx="9" cy="9" r="2" />
-      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+      <title>Upload picture (or just cmd+V it)</title>
+      <rect x="1.5" y="1.5" width="21" height="21" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
+      <rect x="1.5" y="1.5" width="21" height="16" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
+      <circle cx="18.5" cy="5.5" r="2" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
+      <path d="M1.5 12L6.5 7.5L12.5 12.5M8 17.5L12.5 12.5M12.5 12.5L15 10L22.5 16.5" stroke="currentColor" stroke-width={props.stroke ?? 1.5} />
     </svg>
   );
 }

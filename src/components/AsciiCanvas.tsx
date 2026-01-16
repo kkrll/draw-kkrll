@@ -1191,9 +1191,8 @@ export default function AsciiCanvas(props: AsciiCanvasProps) {
     <>
       <Show when={props.drawingMode}>
         <div
-          class={`flex flex-col text-center p-8 font-mono text-sm items-center justify-center md:hidden absolute top-0 left-0 w-full h-screen overflow-hidden ${
-            props.drawingMode ? "opacity-100 z-100" : "opacity-15 z-0"
-          }`}
+          class={`flex flex-col text-center p-8 font-mono text-sm items-center justify-center md:hidden absolute top-0 left-0 w-full h-screen overflow-hidden ${props.drawingMode ? "opacity-100 z-100" : "opacity-15 z-0"
+            }`}
         >
           <p>
             There's quiet a nice drawing tool on this website, but atm it's only available on the
@@ -1211,13 +1210,12 @@ export default function AsciiCanvas(props: AsciiCanvasProps) {
       </Show>
 
       <div
-        class={`hidden md:block absolute top-0 left-0 w-full h-screen overflow-hidden ${
-          !props.drawingMode
-            ? renderSettings.invert
-              ? "opacity-[7%] z-0"
-              : "opacity-15 z-0"
-            : "opacity-100 z-100"
-        } transition-opacity duration-300`}
+        class={`hidden md:block absolute top-0 left-0 w-full h-screen overflow-hidden ${!props.drawingMode
+          ? renderSettings.invert
+            ? "opacity-[7%] z-0"
+            : "opacity-15 z-0"
+          : "opacity-100 z-100"
+          } transition-opacity duration-300`}
         role="button"
         tabIndex={props.drawingMode ? -1 : 0}
         onMouseDown={() => {
@@ -1262,7 +1260,7 @@ export default function AsciiCanvas(props: AsciiCanvasProps) {
                 onToggle={handleColorModeToggle}
                 disabled={!hasSourceImage()}
               />
-              <Divider vertical class="bg-foreground-05 mx-2" />
+              <Divider vertical class="bg-foreground-07/20 mx-2" />
               <div class="flex gap-1 h-full">
                 <NavButton
                   onClick={() => {
@@ -1334,6 +1332,7 @@ export default function AsciiCanvas(props: AsciiCanvasProps) {
               hasSourceImage={hasSourceImage()}
               colorMode={colorMode()}
               onSetMixedMode={handleSetMixedMode}
+              renderStyle={style()}
             />
           </div>
         </Show>

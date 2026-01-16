@@ -8,7 +8,7 @@ import Divider from "./ui/Divider";
 import ImageControlsPopover from "./ImageControlsPopover";
 import NavButton from "./NavButton";
 import { CloseIcon } from "./ui/icons";
-import type { ColorMode } from "../lib/types";
+import type { ColorMode, RenderStyle } from "../lib/types";
 
 interface DrawingControlsProps {
   onDownloadPng: () => void;
@@ -32,6 +32,7 @@ interface DrawingControlsProps {
   hasSourceImage: boolean;
   colorMode: ColorMode;
   onSetMixedMode: () => void;
+  renderStyle: RenderStyle
 }
 
 export default function DrawingControls(props: DrawingControlsProps) {
@@ -58,7 +59,7 @@ export default function DrawingControls(props: DrawingControlsProps) {
       />
       <Divider vertical class="bg-foreground-07/20 mx-2" />
       <NavButton text="Save as PNG" onClick={props.onDownloadPng} />
-      <NavButton text="Save as TXT" onClick={props.onDownloadTxt} />
+      <NavButton text="Save as TXT" onClick={props.onDownloadTxt} disabled={props.renderStyle !== "Ascii"} />
       <Divider vertical class="bg-foreground-07/20 mx-2" />
       <NavButton text="Clear" onClick={props.onClear} />
       <Divider vertical class="bg-foreground-07/20 mx-2" />

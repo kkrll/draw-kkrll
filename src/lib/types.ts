@@ -76,6 +76,8 @@ export interface EditPixel {
   delta?: number;
   /** Which drawing mode created this edit */
   mode: DrawingModes;
+  /** Whether the cell is transparent (erased) */
+  isTransparent?: boolean;
 }
 
 

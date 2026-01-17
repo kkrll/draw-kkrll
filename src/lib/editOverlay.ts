@@ -142,19 +142,71 @@ export function sampleEditsForCell(
 }
 
 /**
+ * Batch sample all edits and return a Map of "col,row" -> EditPixel.
+ * This is O(edits) instead of O(cells × edits) when applying to entire grid.
+ *
+ * @param overlay - The edit overlay to sample from
+ * @param cellSize - Current cell dimensions
+ * @param cols - Number of columns in grid
+ * @param rows - Number of rows in grid
+ * @returns Map of "col,row" keys to composited edits
+ */
+export function batchSampleEdits(
+  overlay: EditOverlay,
+  cellSize: CellSize,
+  cols: number,
+  rows: number,
+): Map<string, EditPixel> {
+  // Group edits by their target cell
+  const cellEdits = new Map<string, EditPixel[]>();
+
+  for (const [key, edit] of overlay.edits) {
+    const { x, y } = parseCoordKey(key);
+    const col = Math.floor(x / cellSize.width);
+    const row = Math.floor(y / cellSize.height);
+
+    // Skip if outside grid bounds
+    if (col < 0 || col >= cols || row < 0 || row >= rows) {
+      continue;
+    }
+
+    const cellKey = `${col},${row}`;
+    const existing = cellEdits.get(cellKey);
+    if (existing) {
+      existing.push(edit);
+    } else {
+      cellEdits.set(cellKey, [edit]);
+    }
+  }
+
+  // Composite edits for each cell
+  const result = new Map<string, EditPixel>();
+  for (const [cellKey, edits] of cellEdits) {
+    result.set(cellKey, compositeEdits(edits));
+  }
+
+  return result;
+}
+
+/**
  * Composite multiple edits into a single edit.
- * Priority: brush (absolute) > increment/decrement (delta)
- * If multiple brush edits, use the last one.
+ * Priority: brush/eraser (absolute) > increment/decrement (delta)
+ * If multiple brush/eraser edits, use the last one.
  * If multiple deltas, sum them.
+ * isTransparent is determined by the last edit that has it defined.
  */
 function compositeEdits(edits: EditPixel[]): EditPixel {
-  // Find the most recent brush edit (if any)
-  const brushEdits = edits.filter(
-    (e) => e.mode === "brush" && e.level !== undefined,
+  // Get the last isTransparent value from any edit that has it
+  const lastTransparentEdit = [...edits].reverse().find(e => e.isTransparent !== undefined);
+  const isTransparent = lastTransparentEdit?.isTransparent;
+
+  // Find the most recent brush or eraser edit (if any)
+  const absoluteEdits = edits.filter(
+    (e) => (e.mode === "brush" || e.mode === "eraser") && e.level !== undefined,
   );
-  if (brushEdits.length > 0) {
-    // Use the last brush edit as base
-    const lastBrush = brushEdits[brushEdits.length - 1];
+  if (absoluteEdits.length > 0) {
+    // Use the last absolute edit as base
+    const lastAbsolute = absoluteEdits[absoluteEdits.length - 1];
 
     // Apply any subsequent delta edits
     const deltaEdits = edits.filter(
@@ -164,24 +216,26 @@ function compositeEdits(edits: EditPixel[]): EditPixel {
     );
     const totalDelta = deltaEdits.reduce((sum, e) => sum + (e.delta ?? 0), 0);
 
-    if (totalDelta !== 0 && lastBrush.level !== undefined) {
+    if (totalDelta !== 0 && lastAbsolute.level !== undefined) {
       return {
         level: Math.max(
           0,
-          Math.min(lastBrush.level + totalDelta, IMAGE_ASCII_CHARS.length - 1),
+          Math.min(lastAbsolute.level + totalDelta, IMAGE_ASCII_CHARS.length - 1),
         ),
-        mode: "brush",
+        mode: lastAbsolute.mode,
+        isTransparent,
       };
     }
 
-    return lastBrush;
+    return { ...lastAbsolute, isTransparent };
   }
 
-  // No brush edits - sum all deltas
+  // No absolute edits - sum all deltas
   const totalDelta = edits.reduce((sum, e) => sum + (e.delta ?? 0), 0);
   return {
     delta: totalDelta,
     mode: totalDelta >= 0 ? "increment" : "decrement",
+    isTransparent,
   };
 }
 

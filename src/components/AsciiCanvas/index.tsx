@@ -302,25 +302,28 @@ export default function AsciiCanvas(props: AsciiCanvasProps) {
     const bgCanvas = canvasState.bgCanvasRef.current;
     if (!canvas || !bgCanvas) return;
 
-    // Set canvas size to match container
-    const container = canvas.parentElement;
-    if (container) {
-      const rect = container.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      bgCanvas.width = rect.width;
-      bgCanvas.height = rect.height;
-    }
+    // Initialize grid after a frame to ensure Safari has finalized layout
+    // Safari sometimes returns stale getBoundingClientRect() values on first render
+    requestAnimationFrame(() => {
+      // Set canvas size to match container (after layout is stable)
+      const container = canvas.parentElement;
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        bgCanvas.width = rect.width;
+        bgCanvas.height = rect.height;
+      }
 
-    // Set up canvas context
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.font = getFontForCellSize(renderSettings.cellSize.height);
-      ctx.textBaseline = "top";
-    }
+      // Set up canvas context
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.font = getFontForCellSize(renderSettings.cellSize.height);
+        ctx.textBaseline = "top";
+      }
 
-    // Initialize grid
-    gridManager.initGrid();
+      gridManager.initGrid();
+    });
 
     // Add window resize listener
     const handleResize = () => {

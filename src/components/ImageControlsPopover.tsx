@@ -8,7 +8,8 @@
  * - Resetting canvas
  */
 
-import { Show } from "solid-js";
+import { Show, onMount } from "solid-js";
+import { setupPopoverPosition } from "../lib/popoverPosition";
 import { UploadPicture } from "./ui/icons";
 import Divider from "./ui/Divider";
 import NavButton from "./NavButton";
@@ -38,6 +39,12 @@ interface ImageControlsPopoverProps {
 
 export default function ImageControlsPopover(props: ImageControlsPopoverProps) {
   let fileInputRef: HTMLInputElement | undefined;
+  let triggerRef: HTMLButtonElement | undefined;
+  let popoverRef: HTMLDivElement | undefined;
+
+  onMount(() => {
+    setupPopoverPosition(triggerRef, popoverRef);
+  });
 
   const handleFileChange = (e: Event) => {
     const input = e.currentTarget as HTMLInputElement;
@@ -55,8 +62,9 @@ export default function ImageControlsPopover(props: ImageControlsPopoverProps) {
   };
 
   return (
-    <div class="h-full">
+    <div class="popover-wrapper h-full">
       <NavButton
+        ref={(el) => (triggerRef = el)}
         popoverTarget="image-controls"
         text="Image controls"
         class="anchor-image-controls"
@@ -65,6 +73,7 @@ export default function ImageControlsPopover(props: ImageControlsPopoverProps) {
       />
 
       <div
+        ref={(el) => (popoverRef = el)}
         class="image-controls-popover p-3 bg-background border border-foreground/20 rounded-2xl shadow-lg min-w-48"
         popover="auto"
         id="image-controls"

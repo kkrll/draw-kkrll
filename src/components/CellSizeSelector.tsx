@@ -8,7 +8,8 @@
  * - Palette mode: Variable cell dimensions with range inputs + Shuffle
  */
 
-import { createSignal, createEffect, Show } from "solid-js";
+import { createSignal, createEffect, Show, onMount } from "solid-js";
+import { setupPopoverPosition } from "../lib/popoverPosition";
 import { DEFAULT_CELL_WIDTH, MAX_CELL_SIZE, MIN_CELL_SIZE } from "../lib/constants";
 import type { CellSize, CellSizeRange, RenderStyle } from "../lib/types";
 import "../styles/ascii.css";
@@ -39,6 +40,11 @@ function getSizeValue(cellSize: CellSize): number {
 export default function CellSizeSelector(props: CellSizeSelectorProps) {
   const currentSize = () => getSizeValue(props.cellSize);
   let buttonRef: HTMLButtonElement | undefined;
+  let popoverRef: HTMLDivElement | undefined;
+
+  onMount(() => {
+    setupPopoverPosition(buttonRef, popoverRef);
+  });
 
   // Local state for range inputs (Palette mode)
   const [minWidthInput, setMinWidthInput] = createSignal(
@@ -118,7 +124,7 @@ export default function CellSizeSelector(props: CellSizeSelectorProps) {
   };
 
   return (
-    <div class="h-full">
+    <div class="popover-wrapper h-full">
       <button
         ref={(el) => (buttonRef = el)}
         popoverTarget="slider"
@@ -132,6 +138,7 @@ export default function CellSizeSelector(props: CellSizeSelectorProps) {
       </button>
 
       <div
+        ref={(el) => (popoverRef = el)}
         class="cell-slider px-2 pt-2 pb-[1px] bg-background border border-foreground/20 rounded-2xl shadow-lg"
         popover="auto"
         id="slider"

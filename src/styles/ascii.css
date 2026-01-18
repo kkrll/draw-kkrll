@@ -87,41 +87,68 @@
     cursor: grabbing;
 }
 
-.anchor-cell-size {
-    anchor-name: --anchor-cell-size;
-    text-align: center;
+/* ============================================
+   Popover Wrapper (for fallback positioning)
+   ============================================ */
+.popover-wrapper {
+    position: relative;
+    display: inline-flex;
 }
 
-.cell-slider {
-    position: absolute;
-    position-anchor: --anchor-cell-size;
-    top: calc(anchor(bottom) + 4px);
-    left: anchor(center);
-    transform: translateX(-50%);
-}
-
-.anchor-brush {
-    anchor-name: --anchor-brush;
-    text-align: center;
-}
-
-.brush-slider {
-    position: absolute;
-    position-anchor: --anchor-brush;
-    top: calc(anchor(bottom) + 4px);
-    left: anchor(center);
-    transform: translateX(-50%);
-}
-
+/* Base styles for anchor classes (always applied) */
+.anchor-cell-size,
+.anchor-brush,
 .anchor-image-controls {
-    anchor-name: --anchor-image-controls;
     text-align: center;
 }
 
-.image-controls-popover {
-    position: absolute;
-    position-anchor: --anchor-image-controls;
-    top: calc(anchor(bottom) + 4px);
-    left: anchor(center);
-    transform: translateX(-50%);
+/* ============================================
+   CSS Anchor Positioning (Chrome 125+)
+   ============================================ */
+@supports (anchor-name: --test) {
+    .anchor-cell-size {
+        anchor-name: --anchor-cell-size;
+    }
+    .cell-slider {
+        position: absolute;
+        position-anchor: --anchor-cell-size;
+        top: calc(anchor(bottom) + 4px);
+        left: anchor(center);
+        transform: translateX(-50%);
+    }
+
+    .anchor-brush {
+        anchor-name: --anchor-brush;
+    }
+    .brush-slider {
+        position: absolute;
+        position-anchor: --anchor-brush;
+        top: calc(anchor(bottom) + 4px);
+        left: anchor(center);
+        transform: translateX(-50%);
+    }
+
+    .anchor-image-controls {
+        anchor-name: --anchor-image-controls;
+    }
+    .image-controls-popover {
+        position: absolute;
+        position-anchor: --anchor-image-controls;
+        top: calc(anchor(bottom) + 4px);
+        left: anchor(center);
+        transform: translateX(-50%);
+    }
+}
+
+/* ============================================
+   Fallback Positioning (Safari, Firefox)
+   JS handles actual positioning via popoverPosition.ts
+   ============================================ */
+@supports not (anchor-name: --test) {
+    .cell-slider,
+    .brush-slider,
+    .image-controls-popover {
+        /* Reset popover default positioning so JS can control it */
+        inset: unset;
+    }
 }

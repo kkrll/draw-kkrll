@@ -9,11 +9,13 @@ interface NavButtonProps {
   icon?: JSX.Element;
   popoverTarget?: string;
   class?: string;
+  ref?: (el: HTMLButtonElement) => void;
 }
 
 export default function NavButton(props: NavButtonProps) {
   return (
     <button
+      ref={props.ref}
       popoverTarget={props.popoverTarget}
       type="button"
       onClick={props.onClick}

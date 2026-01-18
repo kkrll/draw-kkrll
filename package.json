@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "posthog-js": "^1.328.0",
     "solid-js": "^1.9.9",
     "tailwind-merge": "^3.4.0"
   }

@@ -25,6 +25,7 @@ import {
   getFontForCellSize,
 } from "../../../lib/constants";
 import { theme } from "../../../stores/theme";
+import { track } from "../../../lib/posthog";
 
 interface UseGridManagerDeps {
   canvasState: CanvasState;
@@ -207,6 +208,7 @@ export function useGridManager(deps: UseGridManagerDeps) {
 
     renderGrid();
     setIsResizing(false);
+    track("cell_size_changed", { width: newCellSize.width, height: newCellSize.height });
   };
 
   const generateGridWithVariableDimensions = (
@@ -476,6 +478,7 @@ export function useGridManager(deps: UseGridManagerDeps) {
 
     drawBackground();
     renderGrid();
+    track("canvas_reset");
   };
 
   // Clear everything (removes source image)
@@ -515,6 +518,7 @@ export function useGridManager(deps: UseGridManagerDeps) {
     }
 
     renderGrid();
+    track("canvas_cleared");
   };
 
   // Handle contrast change - regenerates grid with new black/white points

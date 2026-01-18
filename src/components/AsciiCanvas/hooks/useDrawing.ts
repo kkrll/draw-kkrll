@@ -3,7 +3,8 @@ import type { HookDependencies } from "../types";
 import type { ColorCharCell, DrawingModes } from "../../../lib/types";
 import { recordEdit } from "../../../lib/editOverlay";
 import { renderCell } from "../../../lib/renderingUtils";
-import { findColumnAtX, findRowAtY } from "../../../lib/variableDimensions"
+import { findColumnAtX, findRowAtY } from "../../../lib/variableDimensions";
+import { track } from "../../../lib/posthog";
 
 interface UseDrawingDeps extends HookDependencies {
   // Signals for drawing state (read-only in this hook)
@@ -131,6 +132,9 @@ export function useDrawing(deps: UseDrawingDeps) {
   const handleStart = (e: MouseEvent | TouchEvent) => {
     isDragging = true
     lastDrawnCell = null
+    if (drawingModeVal) {
+      track("drawing_started", { mode: drawingModeVal })
+    }
     handleDraw(e)
   }
 

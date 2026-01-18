@@ -37,6 +37,7 @@ import {
 import { DEFAULT_CELL_SIZE_RANGE } from "../../lib/variableDimensions";
 import { theme } from "../../stores/theme";
 import { useDebounce } from "../../lib/useDebounce";
+import { track } from "../../lib/posthog";
 
 interface AsciiCanvasProps {
   drawingMode: DrawingModes;
@@ -207,9 +208,11 @@ export default function AsciiCanvas(props: AsciiCanvasProps) {
   const handleStyleToggle = () => {
     const currentIndex = STYLES.indexOf(style());
     const nextIndex = (currentIndex + 1) % STYLES.length;
+    const prevStyle = style();
     const newStyle = STYLES[nextIndex] as RenderStyle;
     setStyle(newStyle);
     renderSettings.style = newStyle;
+    track("style_changed", { from: prevStyle, to: newStyle });
 
     if (newStyle === "Palette") {
       // Generate variable dimensions when entering Palette mode
@@ -236,9 +239,11 @@ export default function AsciiCanvas(props: AsciiCanvasProps) {
     const modes: ColorMode[] = ["monochrome", "original", "mixed"];
     const currentIndex = modes.indexOf(colorMode());
     const nextIndex = (currentIndex + 1) % modes.length;
+    const prevMode = colorMode();
     const newMode = modes[nextIndex];
     setColorMode(newMode);
     renderSettings.colorMode = newMode;
+    track("color_mode_changed", { from: prevMode, to: newMode });
 
     drawBackground();
     requestAnimationFrame(renderGrid);

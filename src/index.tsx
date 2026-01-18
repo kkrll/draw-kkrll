@@ -2,8 +2,11 @@
 import './index.css';
 import { render } from 'solid-js/web';
 import 'solid-devtools';
+import { initPostHog } from './lib/posthog';
 
 import App from './App';
+
+initPostHog()
 
 const root = document.getElementById('root');
 

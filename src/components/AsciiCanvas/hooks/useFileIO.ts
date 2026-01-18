@@ -6,6 +6,7 @@ import { createEditOverlay } from "../../../lib/editOverlay";
 import { generateAsciiTxt, uploadAsciiToR2 } from "../../../lib/asciiSavingUtils";
 import { IMAGE_ASCII_CHARS } from "../../../lib/constants";
 import { theme } from "../../../stores/theme";
+import { track } from "../../../lib/posthog";
 
 interface UseFileIODeps {
   canvasState: CanvasState;
@@ -36,7 +37,7 @@ export function useFileIO(deps: UseFileIODeps) {
     whitePointVal,
   } = deps;
 
-  const handleImageUpload = async (file: File) => {
+  const handleImageUpload = async (file: File, source: "file" | "paste" = "file") => {
     setIsConverting(true)
     try {
       const canvas = canvasState.canvasRef.current
@@ -77,6 +78,7 @@ export function useFileIO(deps: UseFileIODeps) {
       canvasState.grid.current = convertedGrid
       drawBackground()
       renderGrid()
+      track("image_uploaded", { source })
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to convert the image"
       throw new Error(message)
@@ -94,7 +96,7 @@ export function useFileIO(deps: UseFileIODeps) {
       if (items[i].type.startsWith("image/")) {
         const file = items[i].getAsFile();
         if (file) {
-          handleImageUpload(file);
+          handleImageUpload(file, "paste");
         }
         break;
       }
@@ -126,6 +128,8 @@ export function useFileIO(deps: UseFileIODeps) {
       a.download = `ascii-art-${Date.now()}.png`;
       a.click();
       URL.revokeObjectURL(url);
+
+      track("export_png");
 
       // Also upload TXT version to R2
       const { cols, rows } = getCanvasDimensions();
@@ -165,7 +169,8 @@ export function useFileIO(deps: UseFileIODeps) {
     URL.revokeObjectURL(url);
 
     // Upload to R2
-    await uploadAsciiToR2(txtContent);
+    const success = await uploadAsciiToR2(txtContent);
+    track("export_txt", { success: !!success });
   };
 
   return {

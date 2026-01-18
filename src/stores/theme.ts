@@ -5,6 +5,7 @@
  */
 
 import { createSignal } from "solid-js";
+import { track } from "../lib/posthog";
 
 export type Theme = "light" | "dark";
 
@@ -30,6 +31,7 @@ export function useTheme() {
     setThemeInternal(newTheme);
     localStorage.setItem("theme", newTheme);
     document.documentElement.classList.toggle("dark", newTheme === "dark");
+    track("theme_changed", { theme: newTheme });
   };
 
   return {

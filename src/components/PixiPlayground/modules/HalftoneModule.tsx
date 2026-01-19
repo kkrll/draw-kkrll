@@ -1,15 +1,20 @@
 import { createSignal, createEffect } from "solid-js";
+import type { Filter } from "pixi.js";
 import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function HalftoneModule() {
-  const { filters, ready } = usePixi();
+  const { modules, toggleModule, reorderModules, getFilter } = usePixi();
   const [dotSize, setDotSize] = createSignal(10);
   const [spread, setSpread] = createSignal(0.5);
 
+  const moduleConfig = () => modules().find((m) => m.id === "halftone");
+
   createEffect(() => {
-    if (!ready()) return;
-    const halftoneFilter = filters().halftone;
+    const config = moduleConfig();
+    if (!config?.enabled) return;
+
+    const halftoneFilter = getFilter<Filter>("halftone");
     if (halftoneFilter) {
       halftoneFilter.resources.halftoneRes.uniforms.uGridSize = dotSize();
       halftoneFilter.resources.halftoneRes.uniforms.uSpread = spread();
@@ -17,7 +22,14 @@ export function HalftoneModule() {
   });
 
   return (
-    <ModuleCard title="Halftone (Custom Shader)" variant="custom">
+    <ModuleCard
+      title="Halftone (Custom Shader)"
+      variant="custom"
+      moduleId="halftone"
+      enabled={moduleConfig()?.enabled ?? false}
+      onToggle={() => toggleModule("halftone")}
+      onReorder={reorderModules}
+    >
       <label class="flex flex-col gap-1">
         <span class="text-xs text-white/50">Dot Size: {dotSize()}px</span>
         <input

@@ -1,17 +1,25 @@
-import { createContext, useContext, Accessor } from "solid-js";
+import { createContext, useContext, Accessor, Setter } from "solid-js";
 import type { Application, Sprite, BlurFilter, ColorMatrixFilter, Filter } from "pixi.js";
 
-export type PixiFilters = {
-  blur: BlurFilter | undefined;
-  colorMatrix: ColorMatrixFilter | undefined;
-  halftone: Filter | undefined;
+export type ModuleConfig = {
+  id: string;
+  name: string;
+  variant: "builtin" | "custom";
+  enabled: boolean;
+  order: number;
+  filter: Filter | BlurFilter | ColorMatrixFilter;
 };
 
 export type PixiContextType = {
   app: Accessor<Application | undefined>;
   sprite: Accessor<Sprite | undefined>;
-  filters: Accessor<PixiFilters>;
+  modules: Accessor<ModuleConfig[]>;
+  setModules: Setter<ModuleConfig[]>;
   ready: Accessor<boolean>;
+  // Helper functions
+  toggleModule: (id: string) => void;
+  reorderModules: (fromId: string, toId: string) => void;
+  getFilter: <T extends Filter = Filter>(id: string) => T | undefined;
 };
 
 export const PixiContext = createContext<PixiContextType>();

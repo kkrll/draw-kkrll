@@ -27,7 +27,7 @@ export function ModuleCard(props: ModuleCardProps) {
       />
       <div
         ref={sortable.ref}
-        class={`p-3 flex flex-col gap-3 rounded-2xl border border-white/10 ${!props.enabled ? "opacity-60" : ""} ${props.enabled && "bg-white/8"}`}
+        class={`p-2 flex flex-col gap-3 rounded-2xl border border-white/10 ${!props.enabled ? "opacity-60" : ""} ${props.enabled && "bg-white/8"}`}
         classList={{
           "opacity-25": sortable.isActiveDraggable,
           "transition-transform": !!state.active.draggable,

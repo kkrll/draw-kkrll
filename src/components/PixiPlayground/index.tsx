@@ -426,7 +426,7 @@ export default function PixiPlayground() {
             >
               <DragDropSensors />
               <SortableProvider ids={sortableIds()}>
-                <div class="flex flex-col gap-3">
+                <div class="flex flex-col gap-2">
                   <For each={sortedModules()}>
                     {(mod) => {
                       const Component = MODULE_COMPONENTS[mod.id];

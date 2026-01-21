@@ -1,4 +1,4 @@
-import { createSignal, createEffect } from "solid-js";
+import { createEffect } from "solid-js";
 import type { Filter } from "pixi.js";
 import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
@@ -10,13 +10,14 @@ const AXIS_OPTIONS = [
 ];
 
 export function ProgressiveBlurModule() {
-  const { modules, toggleModule, reorderModules, getFilter } = usePixi();
-  const [blurMax, setBlurMax] = createSignal(15);
-  const [gradStart, setGradStart] = createSignal(0.3);
-  const [gradEnd, setGradEnd] = createSignal(1.0);
-  const [axis, setAxis] = createSignal(0);
+  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "progressiveBlur");
+  const blurMax = () => getParameter("progressiveBlur", "blurMax");
+  const gradStart = () => getParameter("progressiveBlur", "gradStart");
+  const gradEnd = () => getParameter("progressiveBlur", "gradEnd");
+  const axis = () => getParameter("progressiveBlur", "axis");
+  const angle = () => getParameter("progressiveBlur", "angle");
 
   createEffect(() => {
     const config = moduleConfig();
@@ -29,6 +30,7 @@ export function ProgressiveBlurModule() {
       u.uStart = gradStart();
       u.uEnd = gradEnd();
       u.uAxis = axis();
+      u.uAngle = angle();
     }
   });
 
@@ -49,7 +51,7 @@ export function ProgressiveBlurModule() {
           max="50"
           step="1"
           value={blurMax()}
-          onInput={(e) => setBlurMax(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("progressiveBlur", "blurMax", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>
@@ -62,7 +64,7 @@ export function ProgressiveBlurModule() {
           max="1"
           step="0.01"
           value={gradStart()}
-          onInput={(e) => setGradStart(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("progressiveBlur", "gradStart", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>
@@ -75,7 +77,7 @@ export function ProgressiveBlurModule() {
           max="1"
           step="0.01"
           value={gradEnd()}
-          onInput={(e) => setGradEnd(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("progressiveBlur", "gradEnd", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>
@@ -84,13 +86,26 @@ export function ProgressiveBlurModule() {
         <span class="text-xs text-white/50">Axis</span>
         <select
           value={axis()}
-          onChange={(e) => setAxis(parseInt(e.currentTarget.value))}
+          onChange={(e) => setParameter("progressiveBlur", "axis", parseInt(e.currentTarget.value))}
           class="bg-white/10 border border-white/20 rounded px-2 py-1 text-sm"
         >
           {AXIS_OPTIONS.map((opt) => (
             <option value={opt.value}>{opt.label}</option>
           ))}
         </select>
+      </label>
+
+      <label class="flex flex-col gap-1">
+        <span class="text-xs text-white/50">Angle: {angle()}°</span>
+        <input
+          type="range"
+          min="0"
+          max="360"
+          step="1"
+          value={angle()}
+          onInput={(e) => setParameter("progressiveBlur", "angle", parseFloat(e.currentTarget.value))}
+          class="w-full"
+        />
       </label>
     </ModuleCard>
   );

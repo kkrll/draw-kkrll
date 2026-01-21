@@ -1,13 +1,13 @@
-import { createSignal, createEffect } from "solid-js";
+import { createEffect } from "solid-js";
 import type { Filter } from "pixi.js";
 import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function HighContrastModule() {
-  const { modules, toggleModule, reorderModules, getFilter } = usePixi();
-  const [contrast, setContrast] = createSignal(1.0);
+  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "highContrast");
+  const contrast = () => getParameter("highContrast", "contrast");
 
   createEffect(() => {
     const config = moduleConfig();
@@ -36,7 +36,7 @@ export function HighContrastModule() {
           max="3"
           step="0.01"
           value={contrast()}
-          onInput={(e) => setContrast(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("highContrast", "contrast", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>

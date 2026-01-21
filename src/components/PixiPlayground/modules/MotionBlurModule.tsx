@@ -1,14 +1,14 @@
-import { createSignal, createEffect } from "solid-js";
+import { createEffect } from "solid-js";
 import type { Filter } from "pixi.js";
 import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function MotionBlurModule() {
-  const { modules, toggleModule, reorderModules, getFilter } = usePixi();
-  const [velocity, setVelocity] = createSignal(1);
-  const [angle, setAngle] = createSignal(0);
+  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "motionBlur");
+  const velocity = () => getParameter("motionBlur", "velocity");
+  const angle = () => getParameter("motionBlur", "angle");
 
   createEffect(() => {
     const config = moduleConfig();
@@ -34,11 +34,11 @@ export function MotionBlurModule() {
         <span class="text-xs text-white/50">Velocity: {velocity()}</span>
         <input
           type="range"
-          min="-10"
+          min="0"
           max="20"
-          step="1"
+          step="0.25"
           value={velocity()}
-          onInput={(e) => setVelocity(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("motionBlur", "velocity", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>
@@ -50,7 +50,7 @@ export function MotionBlurModule() {
           max="360"
           step="1"
           value={angle()}
-          onInput={(e) => setAngle(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("motionBlur", "angle", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>

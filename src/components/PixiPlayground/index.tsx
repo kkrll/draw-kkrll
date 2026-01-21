@@ -17,6 +17,30 @@ import { MotionBlurModule } from "./modules/MotionBlurModule";
 import { ProgressiveBlurModule } from "./modules/ProgressiveBlurModule";
 import { MonochromeModule } from "./modules/MonochromeModule";
 
+// localStorage key and schema
+const STORAGE_KEY = "pixi-playground-settings";
+type StoredModuleState = {
+  enabled: boolean;
+  order: number;
+  parameters: Record<string, number>;
+};
+type StoredSettings = {
+  version: 1;
+  modules: Record<string, StoredModuleState>;
+};
+
+// Default parameters for each module
+const DEFAULT_PARAMETERS: Record<string, Record<string, number>> = {
+  blur: { strength: 0 },
+  colorMatrix: { saturation: 0, hue: 0, contrast: 0 },
+  halftone: { dotSize: 10, spread: 0.5 },
+  grain: { grain: 0.3 },
+  highContrast: { contrast: 1.0 },
+  motionBlur: { velocity: 1, angle: 0 },
+  progressiveBlur: { blurMax: 15, gradStart: 0.3, gradEnd: 1.0, axis: 0, angle: 90 },
+  monochrome: { blackPt: 0.0, whitePt: 1.0, midPt: 0.5 },
+};
+
 // Module component registry - maps module IDs to their UI components
 const MODULE_COMPONENTS: Record<string, () => JSX.Element> = {
   blur: BlurModule,
@@ -68,6 +92,53 @@ export default function PixiPlayground() {
     const mod = modules().find((m) => m.id === id);
     return mod?.filter as T | undefined;
   };
+
+  // Helper: Set a module parameter
+  const setParameter = (moduleId: string, param: string, value: number) => {
+    setModules((prev) =>
+      prev.map((m) =>
+        m.id === moduleId
+          ? { ...m, parameters: { ...m.parameters, [param]: value } }
+          : m
+      )
+    );
+  };
+
+  // Helper: Get a module parameter
+  const getParameter = (moduleId: string, param: string): number => {
+    const mod = modules().find((m) => m.id === moduleId);
+    return mod?.parameters[param] ?? DEFAULT_PARAMETERS[moduleId]?.[param] ?? 0;
+  };
+
+  // Helper: Clear all filters (reset to defaults)
+  const clearAll = () => {
+    setModules((prev) =>
+      prev.map((m, i) => ({
+        ...m,
+        enabled: false,
+        order: i,
+        parameters: { ...DEFAULT_PARAMETERS[m.id] },
+      }))
+    );
+    localStorage.removeItem(STORAGE_KEY);
+  };
+
+  // Persistence: Save to localStorage when modules change
+  createEffect(() => {
+    const m = modules();
+    if (m.length === 0) return; // Don't save empty state
+
+    const stored: StoredSettings = {
+      version: 1,
+      modules: Object.fromEntries(
+        m.map((mod) => [
+          mod.id,
+          { enabled: mod.enabled, order: mod.order, parameters: mod.parameters },
+        ])
+      ),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+  });
 
   // Effect: Sync sprite.filters whenever modules change
   createEffect(() => {
@@ -249,16 +320,33 @@ export default function PixiPlayground() {
         },
       });
 
-      // Create module configs with initial order
+      // Load saved settings from localStorage
+      let savedSettings: StoredSettings | null = null;
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.version === 1) {
+            savedSettings = parsed;
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load saved settings:", e);
+      }
+
+      // Helper to get saved or default value
+      const getSaved = (id: string) => savedSettings?.modules[id];
+
+      // Create module configs with initial order (restored from localStorage if available)
       const initialModules: ModuleConfig[] = [
-        { id: "blur", name: "Blur", variant: "builtin", enabled: true, order: 0, filter: blurFilter },
-        { id: "colorMatrix", name: "Color Matrix", variant: "builtin", enabled: true, order: 1, filter: colorMatrixFilter },
-        { id: "halftone", name: "Halftone", variant: "custom", enabled: true, order: 2, filter: halftoneFilter },
-        { id: "grain", name: "Grain", variant: "custom", enabled: false, order: 3, filter: grainFilter },
-        { id: "highContrast", name: "High Contrast", variant: "custom", enabled: false, order: 4, filter: highContrastFilter },
-        { id: "motionBlur", name: "Motion Blur", variant: "custom", enabled: false, order: 5, filter: motionBlurFilter },
-        { id: "progressiveBlur", name: "Progressive Blur", variant: "custom", enabled: false, order: 6, filter: progressiveBlurFilter },
-        { id: "monochrome", name: "Monochrome", variant: "custom", enabled: false, order: 7, filter: monochromeFilter },
+        { id: "blur", name: "Blur", variant: "builtin", enabled: getSaved("blur")?.enabled ?? false, order: getSaved("blur")?.order ?? 0, filter: blurFilter, parameters: getSaved("blur")?.parameters ?? { ...DEFAULT_PARAMETERS.blur } },
+        { id: "colorMatrix", name: "Color Matrix", variant: "builtin", enabled: getSaved("colorMatrix")?.enabled ?? false, order: getSaved("colorMatrix")?.order ?? 1, filter: colorMatrixFilter, parameters: getSaved("colorMatrix")?.parameters ?? { ...DEFAULT_PARAMETERS.colorMatrix } },
+        { id: "halftone", name: "Halftone", variant: "custom", enabled: getSaved("halftone")?.enabled ?? false, order: getSaved("halftone")?.order ?? 2, filter: halftoneFilter, parameters: getSaved("halftone")?.parameters ?? { ...DEFAULT_PARAMETERS.halftone } },
+        { id: "grain", name: "Grain", variant: "custom", enabled: getSaved("grain")?.enabled ?? false, order: getSaved("grain")?.order ?? 3, filter: grainFilter, parameters: getSaved("grain")?.parameters ?? { ...DEFAULT_PARAMETERS.grain } },
+        { id: "highContrast", name: "High Contrast", variant: "custom", enabled: getSaved("highContrast")?.enabled ?? false, order: getSaved("highContrast")?.order ?? 4, filter: highContrastFilter, parameters: getSaved("highContrast")?.parameters ?? { ...DEFAULT_PARAMETERS.highContrast } },
+        { id: "motionBlur", name: "Motion Blur", variant: "custom", enabled: getSaved("motionBlur")?.enabled ?? false, order: getSaved("motionBlur")?.order ?? 5, filter: motionBlurFilter, parameters: getSaved("motionBlur")?.parameters ?? { ...DEFAULT_PARAMETERS.motionBlur } },
+        { id: "progressiveBlur", name: "Progressive Blur", variant: "custom", enabled: getSaved("progressiveBlur")?.enabled ?? false, order: getSaved("progressiveBlur")?.order ?? 6, filter: progressiveBlurFilter, parameters: getSaved("progressiveBlur")?.parameters ?? { ...DEFAULT_PARAMETERS.progressiveBlur } },
+        { id: "monochrome", name: "Monochrome", variant: "custom", enabled: getSaved("monochrome")?.enabled ?? false, order: getSaved("monochrome")?.order ?? 7, filter: monochromeFilter, parameters: getSaved("monochrome")?.parameters ?? { ...DEFAULT_PARAMETERS.monochrome } },
       ];
 
       pixiApp.stage.addChild(pixiSprite);
@@ -285,14 +373,20 @@ export default function PixiPlayground() {
   const sortedModules = () => [...modules()].sort((a, b) => a.order - b.order);
 
   return (
-    <PixiContext.Provider value={{ app, sprite, modules, setModules, ready, toggleModule, reorderModules, getFilter }}>
+    <PixiContext.Provider value={{ app, sprite, modules, setModules, ready, toggleModule, reorderModules, getFilter, setParameter, getParameter, clearAll }}>
       <div class="w-full h-screen bg-[#1a1a1a] text-white flex">
         <div ref={containerRef} class="flex-1 relative" />
 
         <div class="w-72 p-4 bg-[#252525] flex flex-col gap-4 overflow-y-auto">
-          <h2 class="text-lg font-medium border-b border-white/10 pb-2">
-            Pixi Playground
-          </h2>
+          <div class="flex items-center justify-between border-b border-white/10 pb-2">
+            <h2 class="text-lg font-medium">Pixi Playground</h2>
+            <button
+              onClick={clearAll}
+              class="px-2 py-1 text-xs bg-white/10 hover:bg-white/20 rounded transition-colors"
+            >
+              Clear All
+            </button>
+          </div>
 
           <p class="text-xs text-white/40">
             Cmd/Ctrl+V to paste an image

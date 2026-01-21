@@ -1,13 +1,13 @@
-import { createSignal, createEffect } from "solid-js";
+import { createEffect } from "solid-js";
 import type { BlurFilter } from "pixi.js";
 import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function BlurModule() {
-  const { modules, toggleModule, reorderModules, getFilter } = usePixi();
-  const [blur, setBlur] = createSignal(0);
+  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "blur");
+  const blur = () => getParameter("blur", "strength");
 
   createEffect(() => {
     const config = moduleConfig();
@@ -36,7 +36,7 @@ export function BlurModule() {
           max="20"
           step="0.5"
           value={blur()}
-          onInput={(e) => setBlur(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("blur", "strength", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>

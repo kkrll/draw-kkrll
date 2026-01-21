@@ -1,14 +1,14 @@
-import { createSignal, createEffect } from "solid-js";
+import { createEffect } from "solid-js";
 import type { Filter } from "pixi.js";
 import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function HalftoneModule() {
-  const { modules, toggleModule, reorderModules, getFilter } = usePixi();
-  const [dotSize, setDotSize] = createSignal(10);
-  const [spread, setSpread] = createSignal(0.5);
+  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "halftone");
+  const dotSize = () => getParameter("halftone", "dotSize");
+  const spread = () => getParameter("halftone", "spread");
 
   createEffect(() => {
     const config = moduleConfig();
@@ -38,7 +38,7 @@ export function HalftoneModule() {
           max="50"
           step="1"
           value={dotSize()}
-          onInput={(e) => setDotSize(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("halftone", "dotSize", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>
@@ -50,7 +50,7 @@ export function HalftoneModule() {
           max="1.5"
           step="0.01"
           value={spread()}
-          onInput={(e) => setSpread(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("halftone", "spread", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>

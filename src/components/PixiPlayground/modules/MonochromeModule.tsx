@@ -1,15 +1,15 @@
-import { createSignal, createEffect } from "solid-js";
+import { createEffect } from "solid-js";
 import type { Filter } from "pixi.js";
 import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function MonochromeModule() {
-  const { modules, toggleModule, reorderModules, getFilter } = usePixi();
-  const [blackPt, setBlackPt] = createSignal(0.0);
-  const [whitePt, setWhitePt] = createSignal(1.0);
-  const [midPt, setMidPt] = createSignal(0.5);
+  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "monochrome");
+  const blackPt = () => getParameter("monochrome", "blackPt");
+  const whitePt = () => getParameter("monochrome", "whitePt");
+  const midPt = () => getParameter("monochrome", "midPt");
 
   createEffect(() => {
     const config = moduleConfig();
@@ -41,7 +41,7 @@ export function MonochromeModule() {
           max="1"
           step="0.01"
           value={blackPt()}
-          onInput={(e) => setBlackPt(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("monochrome", "blackPt", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>
@@ -54,7 +54,7 @@ export function MonochromeModule() {
           max="1"
           step="0.01"
           value={whitePt()}
-          onInput={(e) => setWhitePt(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("monochrome", "whitePt", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>
@@ -67,7 +67,7 @@ export function MonochromeModule() {
           max="0.99"
           step="0.01"
           value={midPt()}
-          onInput={(e) => setMidPt(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("monochrome", "midPt", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>

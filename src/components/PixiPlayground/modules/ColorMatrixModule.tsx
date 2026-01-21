@@ -1,15 +1,15 @@
-import { createSignal, createEffect } from "solid-js";
+import { createEffect } from "solid-js";
 import type { ColorMatrixFilter } from "pixi.js";
 import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function ColorMatrixModule() {
-  const { modules, toggleModule, reorderModules, getFilter } = usePixi();
-  const [saturation, setSaturation] = createSignal(0);
-  const [hue, setHue] = createSignal(0);
-  const [contrast, setContrast] = createSignal(0);
+  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "colorMatrix");
+  const saturation = () => getParameter("colorMatrix", "saturation");
+  const hue = () => getParameter("colorMatrix", "hue");
+  const contrast = () => getParameter("colorMatrix", "contrast");
 
   createEffect(() => {
     const config = moduleConfig();
@@ -43,7 +43,7 @@ export function ColorMatrixModule() {
           max="1"
           step="0.01"
           value={saturation()}
-          onInput={(e) => setSaturation(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("colorMatrix", "saturation", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>
@@ -55,7 +55,7 @@ export function ColorMatrixModule() {
           max="360"
           step="1"
           value={hue()}
-          onInput={(e) => setHue(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("colorMatrix", "hue", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>
@@ -67,7 +67,7 @@ export function ColorMatrixModule() {
           max="2"
           step="0.01"
           value={contrast()}
-          onInput={(e) => setContrast(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("colorMatrix", "contrast", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>

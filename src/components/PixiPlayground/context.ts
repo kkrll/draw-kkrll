@@ -8,6 +8,7 @@ export type ModuleConfig = {
   enabled: boolean;
   order: number;
   filter: Filter | BlurFilter | ColorMatrixFilter;
+  parameters: Record<string, number>;
 };
 
 export type PixiContextType = {
@@ -20,6 +21,10 @@ export type PixiContextType = {
   toggleModule: (id: string) => void;
   reorderModules: (fromId: string, toId: string) => void;
   getFilter: <T extends Filter = Filter>(id: string) => T | undefined;
+  // Parameter management
+  setParameter: (moduleId: string, param: string, value: number) => void;
+  getParameter: (moduleId: string, param: string) => number;
+  clearAll: () => void;
 };
 
 export const PixiContext = createContext<PixiContextType>();

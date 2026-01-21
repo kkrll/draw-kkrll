@@ -1,13 +1,13 @@
-import { createSignal, createEffect } from "solid-js";
+import { createEffect } from "solid-js";
 import type { Filter } from "pixi.js";
 import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function GrainModule() {
-  const { modules, toggleModule, reorderModules, getFilter } = usePixi();
-  const [grain, setGrain] = createSignal(0.3);
+  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "grain");
+  const grain = () => getParameter("grain", "grain");
 
   createEffect(() => {
     const config = moduleConfig();
@@ -36,7 +36,7 @@ export function GrainModule() {
           max="1"
           step="0.01"
           value={grain()}
-          onInput={(e) => setGrain(parseFloat(e.currentTarget.value))}
+          onInput={(e) => setParameter("grain", "grain", parseFloat(e.currentTarget.value))}
           class="w-full"
         />
       </label>

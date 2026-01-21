@@ -4,7 +4,7 @@ import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function MonochromeModule() {
-  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
+  const { modules, toggleModule, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "monochrome");
   const blackPt = () => getParameter("monochrome", "blackPt");
@@ -26,12 +26,11 @@ export function MonochromeModule() {
 
   return (
     <ModuleCard
-      title="Monochrome (Custom)"
+      title="Monochrome"
       variant="custom"
       moduleId="monochrome"
       enabled={moduleConfig()?.enabled ?? false}
       onToggle={() => toggleModule("monochrome")}
-      onReorder={reorderModules}
     >
       <label class="flex flex-col gap-1">
         <span class="text-xs text-white/50">Black Point: {blackPt().toFixed(2)}</span>

@@ -4,7 +4,7 @@ import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function HalftoneModule() {
-  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
+  const { modules, toggleModule, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "halftone");
   const dotSize = () => getParameter("halftone", "dotSize");
@@ -23,12 +23,11 @@ export function HalftoneModule() {
 
   return (
     <ModuleCard
-      title="Halftone (Custom Shader)"
+      title="Halftone"
       variant="custom"
       moduleId="halftone"
       enabled={moduleConfig()?.enabled ?? false}
       onToggle={() => toggleModule("halftone")}
-      onReorder={reorderModules}
     >
       <label class="flex flex-col gap-1">
         <span class="text-xs text-white/50">Dot Size: {dotSize()}px</span>

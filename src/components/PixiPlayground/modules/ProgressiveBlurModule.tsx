@@ -10,7 +10,7 @@ const AXIS_OPTIONS = [
 ];
 
 export function ProgressiveBlurModule() {
-  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
+  const { modules, toggleModule, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "progressiveBlur");
   const blurMax = () => getParameter("progressiveBlur", "blurMax");
@@ -36,20 +36,19 @@ export function ProgressiveBlurModule() {
 
   return (
     <ModuleCard
-      title="Progressive Blur (Custom)"
+      title="Progressive Blur"
       variant="custom"
       moduleId="progressiveBlur"
       enabled={moduleConfig()?.enabled ?? false}
       onToggle={() => toggleModule("progressiveBlur")}
-      onReorder={reorderModules}
     >
       <label class="flex flex-col gap-1">
         <span class="text-xs text-white/50">Max Blur: {blurMax()}</span>
         <input
           type="range"
           min="0"
-          max="50"
-          step="1"
+          max="10"
+          step="0.05"
           value={blurMax()}
           onInput={(e) => setParameter("progressiveBlur", "blurMax", parseFloat(e.currentTarget.value))}
           class="w-full"

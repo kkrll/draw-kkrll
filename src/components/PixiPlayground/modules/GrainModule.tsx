@@ -4,7 +4,7 @@ import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function GrainModule() {
-  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
+  const { modules, toggleModule, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "grain");
   const grain = () => getParameter("grain", "grain");
@@ -21,12 +21,11 @@ export function GrainModule() {
 
   return (
     <ModuleCard
-      title="Grain (Custom Shader)"
+      title="Grain"
       variant="custom"
       moduleId="grain"
       enabled={moduleConfig()?.enabled ?? false}
       onToggle={() => toggleModule("grain")}
-      onReorder={reorderModules}
     >
       <label class="flex flex-col gap-1">
         <span class="text-xs text-white/50">Amount: {grain().toFixed(2)}</span>

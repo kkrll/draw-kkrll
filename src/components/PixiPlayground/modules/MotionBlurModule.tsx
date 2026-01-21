@@ -4,7 +4,7 @@ import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function MotionBlurModule() {
-  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
+  const { modules, toggleModule, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "motionBlur");
   const velocity = () => getParameter("motionBlur", "velocity");
@@ -23,12 +23,11 @@ export function MotionBlurModule() {
 
   return (
     <ModuleCard
-      title="Motion Blur (Custom)"
+      title="Motion Blur"
       variant="custom"
       moduleId="motionBlur"
       enabled={moduleConfig()?.enabled ?? false}
       onToggle={() => toggleModule("motionBlur")}
-      onReorder={reorderModules}
     >
       <label class="flex flex-col gap-1">
         <span class="text-xs text-white/50">Velocity: {velocity()}</span>

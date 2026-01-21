@@ -19,7 +19,6 @@ export type PixiContextType = {
   ready: Accessor<boolean>;
   // Helper functions
   toggleModule: (id: string) => void;
-  reorderModules: (fromId: string, toId: string) => void;
   getFilter: <T extends Filter = Filter>(id: string) => T | undefined;
   // Parameter management
   setParameter: (moduleId: string, param: string, value: number) => void;

@@ -1,5 +1,6 @@
 import { onMount, onCleanup, createSignal, createEffect, For, type JSX } from "solid-js";
 import { Application, Sprite, Assets, BlurFilter, ColorMatrixFilter, Filter, GlProgram, Texture } from "pixi.js";
+import { DragDropProvider, DragDropSensors, SortableProvider, DragOverlay, closestCenter, type DragEvent as DndDragEvent, type Id } from "@thisbeyond/solid-dnd";
 import { PixiContext, type ModuleConfig } from "./context";
 import { defaultVertex } from "./shaders/defaultVertex";
 import { halftoneFrag } from "./shaders/halftone";
@@ -62,6 +63,7 @@ export default function PixiPlayground() {
   const [modules, setModules] = createSignal<ModuleConfig[]>([]);
   const [ready, setReady] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
+  const [activeId, setActiveId] = createSignal<Id | null>(null);
 
   // Helper: Toggle module enabled state
   const toggleModule = (id: string) => {
@@ -70,22 +72,35 @@ export default function PixiPlayground() {
     );
   };
 
-  // Helper: Reorder modules by swapping positions
-  const reorderModules = (fromId: string, toId: string) => {
+  // Drag handlers for reordering
+  const onDragStart = ({ draggable }: DndDragEvent) => {
+    setActiveId(draggable?.id ?? null);
+  };
+
+  const onDragEnd = ({ draggable, droppable }: DndDragEvent) => {
+    setActiveId(null);
+    if (!draggable || !droppable) return;
+    const fromId = draggable.id as string;
+    const toId = droppable.id as string;
+    if (fromId === toId) return;
+
     setModules((prev) => {
-      const fromIndex = prev.findIndex((m) => m.id === fromId);
-      const toIndex = prev.findIndex((m) => m.id === toId);
+      const sorted = [...prev].sort((a, b) => a.order - b.order);
+      const fromIndex = sorted.findIndex((m) => m.id === fromId);
+      const toIndex = sorted.findIndex((m) => m.id === toId);
       if (fromIndex === -1 || toIndex === -1) return prev;
 
-      const newModules = [...prev];
-      // Swap order values
-      const fromOrder = newModules[fromIndex].order;
-      newModules[fromIndex] = { ...newModules[fromIndex], order: newModules[toIndex].order };
-      newModules[toIndex] = { ...newModules[toIndex], order: fromOrder };
+      // Move item from fromIndex to toIndex
+      const [moved] = sorted.splice(fromIndex, 1);
+      sorted.splice(toIndex, 0, moved);
 
-      return newModules;
+      // Reassign order values
+      return sorted.map((m, i) => ({ ...m, order: i }));
     });
   };
+
+  // Get active module for drag overlay
+  const activeModule = () => modules().find((m) => m.id === activeId());
 
   // Helper: Get filter by ID with type casting
   const getFilter = <T extends Filter = Filter>(id: string): T | undefined => {
@@ -298,7 +313,7 @@ export default function PixiPlayground() {
         resources: {
           progRes: {
             uVelocity: { value: 15, type: "f32" },
-            uAngle: { value: 90, type: "f32" },
+            uAngle: { value: 0, type: "f32" },
             uStart: { value: 0.3, type: "f32" },
             uEnd: { value: 1.0, type: "f32" },
             uAxis: { value: 0, type: "i32" },
@@ -341,12 +356,12 @@ export default function PixiPlayground() {
       const initialModules: ModuleConfig[] = [
         { id: "blur", name: "Blur", variant: "builtin", enabled: getSaved("blur")?.enabled ?? false, order: getSaved("blur")?.order ?? 0, filter: blurFilter, parameters: getSaved("blur")?.parameters ?? { ...DEFAULT_PARAMETERS.blur } },
         { id: "colorMatrix", name: "Color Matrix", variant: "builtin", enabled: getSaved("colorMatrix")?.enabled ?? false, order: getSaved("colorMatrix")?.order ?? 1, filter: colorMatrixFilter, parameters: getSaved("colorMatrix")?.parameters ?? { ...DEFAULT_PARAMETERS.colorMatrix } },
-        { id: "halftone", name: "Halftone", variant: "custom", enabled: getSaved("halftone")?.enabled ?? false, order: getSaved("halftone")?.order ?? 2, filter: halftoneFilter, parameters: getSaved("halftone")?.parameters ?? { ...DEFAULT_PARAMETERS.halftone } },
-        { id: "grain", name: "Grain", variant: "custom", enabled: getSaved("grain")?.enabled ?? false, order: getSaved("grain")?.order ?? 3, filter: grainFilter, parameters: getSaved("grain")?.parameters ?? { ...DEFAULT_PARAMETERS.grain } },
-        { id: "highContrast", name: "High Contrast", variant: "custom", enabled: getSaved("highContrast")?.enabled ?? false, order: getSaved("highContrast")?.order ?? 4, filter: highContrastFilter, parameters: getSaved("highContrast")?.parameters ?? { ...DEFAULT_PARAMETERS.highContrast } },
-        { id: "motionBlur", name: "Motion Blur", variant: "custom", enabled: getSaved("motionBlur")?.enabled ?? false, order: getSaved("motionBlur")?.order ?? 5, filter: motionBlurFilter, parameters: getSaved("motionBlur")?.parameters ?? { ...DEFAULT_PARAMETERS.motionBlur } },
-        { id: "progressiveBlur", name: "Progressive Blur", variant: "custom", enabled: getSaved("progressiveBlur")?.enabled ?? false, order: getSaved("progressiveBlur")?.order ?? 6, filter: progressiveBlurFilter, parameters: getSaved("progressiveBlur")?.parameters ?? { ...DEFAULT_PARAMETERS.progressiveBlur } },
-        { id: "monochrome", name: "Monochrome", variant: "custom", enabled: getSaved("monochrome")?.enabled ?? false, order: getSaved("monochrome")?.order ?? 7, filter: monochromeFilter, parameters: getSaved("monochrome")?.parameters ?? { ...DEFAULT_PARAMETERS.monochrome } },
+        { id: "halftone", name: "Halftone", variant: "builtin", enabled: getSaved("halftone")?.enabled ?? false, order: getSaved("halftone")?.order ?? 2, filter: halftoneFilter, parameters: getSaved("halftone")?.parameters ?? { ...DEFAULT_PARAMETERS.halftone } },
+        { id: "grain", name: "Grain", variant: "builtin", enabled: getSaved("grain")?.enabled ?? false, order: getSaved("grain")?.order ?? 3, filter: grainFilter, parameters: getSaved("grain")?.parameters ?? { ...DEFAULT_PARAMETERS.grain } },
+        { id: "highContrast", name: "High Contrast", variant: "builtin", enabled: getSaved("highContrast")?.enabled ?? false, order: getSaved("highContrast")?.order ?? 4, filter: highContrastFilter, parameters: getSaved("highContrast")?.parameters ?? { ...DEFAULT_PARAMETERS.highContrast } },
+        { id: "motionBlur", name: "Motion Blur", variant: "builtin", enabled: getSaved("motionBlur")?.enabled ?? false, order: getSaved("motionBlur")?.order ?? 5, filter: motionBlurFilter, parameters: getSaved("motionBlur")?.parameters ?? { ...DEFAULT_PARAMETERS.motionBlur } },
+        { id: "progressiveBlur", name: "Progressive Blur", variant: "builtin", enabled: getSaved("progressiveBlur")?.enabled ?? false, order: getSaved("progressiveBlur")?.order ?? 6, filter: progressiveBlurFilter, parameters: getSaved("progressiveBlur")?.parameters ?? { ...DEFAULT_PARAMETERS.progressiveBlur } },
+        { id: "monochrome", name: "Monochrome", variant: "builtin", enabled: getSaved("monochrome")?.enabled ?? false, order: getSaved("monochrome")?.order ?? 7, filter: monochromeFilter, parameters: getSaved("monochrome")?.parameters ?? { ...DEFAULT_PARAMETERS.monochrome } },
       ];
 
       pixiApp.stage.addChild(pixiSprite);
@@ -372,8 +387,11 @@ export default function PixiPlayground() {
   // Get modules sorted by order for rendering
   const sortedModules = () => [...modules()].sort((a, b) => a.order - b.order);
 
+  // IDs for sortable provider (must match module IDs)
+  const sortableIds = () => sortedModules().map((m) => m.id);
+
   return (
-    <PixiContext.Provider value={{ app, sprite, modules, setModules, ready, toggleModule, reorderModules, getFilter, setParameter, getParameter, clearAll }}>
+    <PixiContext.Provider value={{ app, sprite, modules, setModules, ready, toggleModule, getFilter, setParameter, getParameter, clearAll }}>
       <div class="w-full h-screen bg-[#1a1a1a] text-white flex">
         <div ref={containerRef} class="flex-1 relative" />
 
@@ -401,12 +419,32 @@ export default function PixiPlayground() {
           )}
 
           {ready() && (
-            <For each={sortedModules()}>
-              {(mod) => {
-                const Component = MODULE_COMPONENTS[mod.id];
-                return Component ? <Component /> : null;
-              }}
-            </For>
+            <DragDropProvider
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+              collisionDetector={closestCenter}
+            >
+              <DragDropSensors />
+              <SortableProvider ids={sortableIds()}>
+                <div class="flex flex-col gap-3">
+                  <For each={sortedModules()}>
+                    {(mod) => {
+                      const Component = MODULE_COMPONENTS[mod.id];
+                      return Component ? <Component /> : null;
+                    }}
+                  </For>
+                </div>
+              </SortableProvider>
+              <DragOverlay>
+                {activeModule() && (
+                  <div class="rounded p-3 bg-[#252525] border border-blue-400 shadow-lg opacity-90">
+                    <span class="text-sm font-medium text-white/80">
+                      {activeModule()!.name}
+                    </span>
+                  </div>
+                )}
+              </DragOverlay>
+            </DragDropProvider>
           )}
         </div>
       </div>

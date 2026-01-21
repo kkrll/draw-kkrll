@@ -4,7 +4,7 @@ import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function HighContrastModule() {
-  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
+  const { modules, toggleModule, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "highContrast");
   const contrast = () => getParameter("highContrast", "contrast");
@@ -21,12 +21,11 @@ export function HighContrastModule() {
 
   return (
     <ModuleCard
-      title="High Contrast (Custom)"
+      title="High Contrast"
       variant="custom"
       moduleId="highContrast"
       enabled={moduleConfig()?.enabled ?? false}
       onToggle={() => toggleModule("highContrast")}
-      onReorder={reorderModules}
     >
       <label class="flex flex-col gap-1">
         <span class="text-xs text-white/50">Contrast: {contrast().toFixed(2)}</span>

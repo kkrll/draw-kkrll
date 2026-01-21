@@ -4,7 +4,7 @@ import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function BlurModule() {
-  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
+  const { modules, toggleModule, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "blur");
   const blur = () => getParameter("blur", "strength");
@@ -21,12 +21,11 @@ export function BlurModule() {
 
   return (
     <ModuleCard
-      title="Blur (Built-in)"
+      title="Blur"
       variant="builtin"
       moduleId="blur"
       enabled={moduleConfig()?.enabled ?? false}
       onToggle={() => toggleModule("blur")}
-      onReorder={reorderModules}
     >
       <label class="flex flex-col gap-1">
         <span class="text-xs text-white/50">Strength: {blur()}</span>

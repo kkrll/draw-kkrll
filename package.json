@@ -20,6 +20,7 @@
     "vite-plugin-solid": "^2.11.8"
   },
   "dependencies": {
+    "@thisbeyond/solid-dnd": "^0.7.5",
     "clsx": "^2.1.1",
     "pixi.js": "^8.15.0",
     "posthog-js": "^1.328.0",

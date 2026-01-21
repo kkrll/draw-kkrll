@@ -4,7 +4,7 @@ import { usePixi } from "../context";
 import { ModuleCard } from "../ModuleCard";
 
 export function ColorMatrixModule() {
-  const { modules, toggleModule, reorderModules, getFilter, getParameter, setParameter } = usePixi();
+  const { modules, toggleModule, getFilter, getParameter, setParameter } = usePixi();
 
   const moduleConfig = () => modules().find((m) => m.id === "colorMatrix");
   const saturation = () => getParameter("colorMatrix", "saturation");
@@ -26,12 +26,11 @@ export function ColorMatrixModule() {
 
   return (
     <ModuleCard
-      title="Color Matrix (Built-in)"
+      title="Color Matrix"
       variant="builtin"
       moduleId="colorMatrix"
       enabled={moduleConfig()?.enabled ?? false}
       onToggle={() => toggleModule("colorMatrix")}
-      onReorder={reorderModules}
     >
       <label class="flex flex-col gap-1">
         <span class="text-xs text-white/50">

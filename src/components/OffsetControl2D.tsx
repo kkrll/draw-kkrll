@@ -101,9 +101,8 @@ export default function OffsetControl2D(props: OffsetControl2DProps) {
         ref={(el) => (containerRef = el)}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
-        class={`relative bg-background-07 border border-foreground/20 rounded-xl ${
-          props.disabled ? "opacity-50 cursor-not-allowed" : "cursor-crosshair"
-        }`}
+        class={`relative bg-background-07 border border-foreground/20 rounded-xl ${props.disabled ? "opacity-50 cursor-not-allowed" : "cursor-crosshair"
+          }`}
         style={{
           width: `${CONTAINER_SIZE}px`,
           height: `${CONTAINER_SIZE}px`,

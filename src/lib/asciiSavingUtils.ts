@@ -33,6 +33,42 @@ export function generateAsciiTxt(options: GenerateTxtOptions): string {
   return [...metadata, ...artLines].join("\n");
 }
 
+interface GenerateLevelsTxtOptions {
+  grid: CharCell[];
+  cols: number;
+  rows: number;
+  levels: number;
+}
+
+/**
+ * Serialize the grid as raw levels instead of rendered glyphs.
+ * One base36 digit per cell; "." marks transparent/missing cells so they
+ * stay empty under theme inversion (unlike level 0, which inverts to max).
+ */
+export function generateLevelsTxt(options: GenerateLevelsTxtOptions): string {
+  const { grid, cols, rows, levels } = options;
+
+  const metadata = [
+    `levels: ${levels}`,
+    `dimensions: ${cols}x${rows}`,
+    `created: ${new Date().toISOString()}`,
+    "---",
+  ];
+
+  const artLines: string[] = [];
+  for (let row = 0; row < rows; row++) {
+    let line = "";
+    for (let col = 0; col < cols; col++) {
+      const cell = grid[row * cols + col];
+      line +=
+        !cell || cell.isTransparent ? "." : cell.currentLevel.toString(36);
+    }
+    artLines.push(line);
+  }
+
+  return [...metadata, ...artLines].join("\n");
+}
+
 export async function uploadAsciiToR2(
   txtContent: string,
 ): Promise<string | null> {

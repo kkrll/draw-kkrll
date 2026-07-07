@@ -1,7 +1,7 @@
 import Divider from "./ui/Divider";
 import ImageControlsPopover from "./ImageControlsPopover";
 import NavButton from "./NavButton";
-import { CloseIcon } from "./ui/icons";
+import { CloseIcon, DownloadIcon } from "./ui/icons";
 import { useAsciiCanvas } from "./AsciiCanvas/context";
 
 export default function DrawingControls() {
@@ -43,9 +43,13 @@ export default function DrawingControls() {
         onSetMixedMode={handlers.onSetMixedMode}
       />
       <Divider vertical class="bg-foreground-07/20 mx-2" />
-      <NavButton text="Save as PNG" onClick={handlers.onDownloadPng} />
-      <NavButton text="Save as TXT" onClick={handlers.onDownloadTxt}
+      <NavButton text="Save as PNG" aria-label="Save as PNG"
+        onClick={handlers.onDownloadPng} icon={<DownloadIcon text="PNG" size={20} />} />
+      <NavButton text="Save as TXT" aria-label="Save as TXT"
+        onClick={handlers.onDownloadTxt} icon={<DownloadIcon text="TXT" size={20} />}
         disabled={style() !== "Ascii"} />
+      <NavButton text="Save levels" aria-label="Save levels"
+        onClick={handlers.onDownloadLevels} icon={<DownloadIcon text="LEVEL" size={20} />} />
       <Divider vertical class="bg-foreground-07/20 mx-2" />
       <NavButton text="Clear" onClick={handlers.onClear} />
       <Divider vertical class="bg-foreground-07/20 mx-2" />

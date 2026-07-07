@@ -61,6 +61,7 @@ export interface AsciiCanvasHandlers {
   onClear: () => void;
   onDownloadPng: () => void;
   onDownloadTxt: () => void;
+  onDownloadLevels: () => void;
   onImageUpload: (file: File) => void;
   onModeSelect: (mode: DrawingModes) => void;
   onExit: () => void;

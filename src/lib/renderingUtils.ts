@@ -206,9 +206,10 @@ export function renderCell(
 export function adjustContrast(normalized: number, blackPoint: number = 0, whitePoint: number = 1) {
   let luminance = normalized
 
-  // Adjust white and black point
-  if (normalized < blackPoint) { luminance = 0 }
-  if (normalized > whitePoint) { luminance = 1 }
+  // Clamp to the black/white points so normalization lands in [0, 1];
+  // clamping to 0/1 here would go negative (NaN under ** 1.3) or overshoot
+  if (normalized < blackPoint) { luminance = blackPoint }
+  if (normalized > whitePoint) { luminance = whitePoint }
   luminance = (luminance - blackPoint) / (whitePoint - blackPoint)
 
   if (whitePoint <= blackPoint) return luminance > 0.5 ? 1 : 0;

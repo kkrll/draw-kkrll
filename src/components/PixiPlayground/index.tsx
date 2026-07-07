@@ -9,6 +9,7 @@ import { highContrastFrag } from "./shaders/highContrast";
 import { motionBlurFrag } from "./shaders/motionBlur";
 import { progressiveBlurFrag } from "./shaders/progressiveMotionBlur";
 import { monochromeFrag } from "./shaders/monochrome";
+import { slitScanFrag } from "./shaders/slitScan";
 import { BlurModule } from "./modules/BlurModule";
 import { ColorMatrixModule } from "./modules/ColorMatrixModule";
 import { HalftoneModule } from "./modules/HalftoneModule";
@@ -17,6 +18,7 @@ import { HighContrastModule } from "./modules/HighContrastModule";
 import { MotionBlurModule } from "./modules/MotionBlurModule";
 import { ProgressiveBlurModule } from "./modules/ProgressiveBlurModule";
 import { MonochromeModule } from "./modules/MonochromeModule";
+import { SlitScanModule } from "./modules/SlitScanModule";
 
 // localStorage key and schema
 const STORAGE_KEY = "pixi-playground-settings";
@@ -40,6 +42,7 @@ const DEFAULT_PARAMETERS: Record<string, Record<string, number>> = {
   motionBlur: { velocity: 1, angle: 0 },
   progressiveBlur: { blurMax: 15, gradStart: 0.3, gradEnd: 1.0, axis: 0, angle: 90 },
   monochrome: { blackPt: 0.0, whitePt: 1.0, midPt: 0.5 },
+  slitScan: { lines: 50, offset: 0.1, phase: 0, freq: 5 },
 };
 
 // Module component registry - maps module IDs to their UI components
@@ -52,6 +55,7 @@ const MODULE_COMPONENTS: Record<string, () => JSX.Element> = {
   motionBlur: MotionBlurModule,
   progressiveBlur: ProgressiveBlurModule,
   monochrome: MonochromeModule,
+  slitScan: SlitScanModule,
 };
 
 export default function PixiPlayground() {
@@ -335,6 +339,21 @@ export default function PixiPlayground() {
         },
       });
 
+      const slitScanFilter = new Filter({
+        glProgram: new GlProgram({
+          vertex: defaultVertex,
+          fragment: slitScanFrag,
+        }),
+        resources: {
+          slitRes: {
+            uLines: { value: 50, type: "f32" },
+            uOffset: { value: 0.1, type: "f32" },
+            uPhase: { value: 0, type: "f32" },
+            uFreq: { value: 5, type: "f32" },
+          },
+        },
+      });
+
       // Load saved settings from localStorage
       let savedSettings: StoredSettings | null = null;
       try {
@@ -362,6 +381,7 @@ export default function PixiPlayground() {
         { id: "motionBlur", name: "Motion Blur", variant: "builtin", enabled: getSaved("motionBlur")?.enabled ?? false, order: getSaved("motionBlur")?.order ?? 5, filter: motionBlurFilter, parameters: getSaved("motionBlur")?.parameters ?? { ...DEFAULT_PARAMETERS.motionBlur } },
         { id: "progressiveBlur", name: "Progressive Blur", variant: "builtin", enabled: getSaved("progressiveBlur")?.enabled ?? false, order: getSaved("progressiveBlur")?.order ?? 6, filter: progressiveBlurFilter, parameters: getSaved("progressiveBlur")?.parameters ?? { ...DEFAULT_PARAMETERS.progressiveBlur } },
         { id: "monochrome", name: "Monochrome", variant: "builtin", enabled: getSaved("monochrome")?.enabled ?? false, order: getSaved("monochrome")?.order ?? 7, filter: monochromeFilter, parameters: getSaved("monochrome")?.parameters ?? { ...DEFAULT_PARAMETERS.monochrome } },
+        { id: "slitScan", name: "Slit Scan", variant: "custom", enabled: getSaved("slitScan")?.enabled ?? false, order: getSaved("slitScan")?.order ?? 8, filter: slitScanFilter, parameters: getSaved("slitScan")?.parameters ?? { ...DEFAULT_PARAMETERS.slitScan } },
       ];
 
       pixiApp.stage.addChild(pixiSprite);

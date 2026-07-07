@@ -399,6 +399,7 @@ export default function AsciiCanvas(props: AsciiCanvasProps) {
       onClear: gridManager.handleClear,
       onDownloadPng: fileIO.handleDownloadPng,
       onDownloadTxt: fileIO.handleDownloadTxt,
+      onDownloadLevels: fileIO.handleDownloadLevels,
       onImageUpload: fileIO.handleImageUpload,
       onModeSelect: handleModeSelect,
       onExit: handleToggleMode,

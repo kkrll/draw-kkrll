@@ -3,7 +3,7 @@ import type { CanvasState } from "../types";
 import type { RenderSettings } from "../../../lib/types";
 import convertImageToGrid from "../../../lib/imageToAscii";
 import { createEditOverlay } from "../../../lib/editOverlay";
-import { generateAsciiTxt, uploadAsciiToR2 } from "../../../lib/asciiSavingUtils";
+import { generateAsciiTxt, generateLevelsTxt, uploadAsciiToR2 } from "../../../lib/asciiSavingUtils";
 import { IMAGE_ASCII_CHARS } from "../../../lib/constants";
 import { theme } from "../../../stores/theme";
 import { track } from "../../../lib/posthog";
@@ -173,10 +173,34 @@ export function useFileIO(deps: UseFileIODeps) {
     track("export_txt", { success: !!success });
   };
 
+  // Raw levels export (theme-invertible format): one base36 digit per cell,
+  // `.` for transparent — meant to be re-rendered with any ramp/theme.
+  const handleDownloadLevels = () => {
+    const { cols, rows } = getCanvasDimensions();
+
+    const txtContent = generateLevelsTxt({
+      grid: canvasState.grid.current,
+      cols,
+      rows,
+      levels: canvasState.asciiChars.current.length,
+    });
+
+    const blob = new Blob([txtContent], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ascii-levels-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    track("export_levels");
+  };
+
   return {
     handleImageUpload,
     handlePaste,
     handleDownloadPng,
     handleDownloadTxt,
+    handleDownloadLevels,
   };
 }

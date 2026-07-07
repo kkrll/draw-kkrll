@@ -139,3 +139,36 @@ export function UploadPicture(props: IconProps = {}) {
     </svg>
   );
 }
+
+export function DownloadIcon(props: IconProps & { text?: string }) {
+  return (
+    <svg
+      width={props.size ?? 24}
+      height={props.size ?? 24}
+      viewBox="0 0 24 24"
+      fill="none"
+      class={props.class}
+    >
+      <path
+        d="M2 17V19C2 20.6569 3.34315 22 5 22H19C20.6569 22 22 20.6569 22 19V17"
+        stroke="currentColor"
+      />
+      <path
+        d="M12 11.5L12 18.5M12 18.5L17 14M12 18.5L7 14"
+        stroke="currentColor"
+      />
+      <text
+        x="12"
+        y="6"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        fill="currentColor"
+        font-size="8"
+        font-weight="600"
+        font-family="monospace"
+      >
+        {props.text ?? "PNG"}
+      </text>
+    </svg>
+  );
+}

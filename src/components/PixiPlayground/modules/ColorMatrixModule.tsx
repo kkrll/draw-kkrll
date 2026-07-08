@@ -1,0 +1,75 @@
+import { createEffect } from "solid-js";
+import type { ColorMatrixFilter } from "pixi.js";
+import { usePixi } from "../context";
+import { ModuleCard } from "../ModuleCard";
+
+export function ColorMatrixModule() {
+  const { modules, toggleModule, getFilter, getParameter, setParameter } = usePixi();
+
+  const moduleConfig = () => modules().find((m) => m.id === "colorMatrix");
+  const saturation = () => getParameter("colorMatrix", "saturation");
+  const hue = () => getParameter("colorMatrix", "hue");
+  const contrast = () => getParameter("colorMatrix", "contrast");
+
+  createEffect(() => {
+    const config = moduleConfig();
+    if (!config?.enabled) return;
+
+    const colorMatrix = getFilter<ColorMatrixFilter>("colorMatrix");
+    if (colorMatrix) {
+      colorMatrix.reset();
+      colorMatrix.saturate(saturation(), false);
+      colorMatrix.hue(hue(), true);
+      colorMatrix.contrast(contrast(), true);
+    }
+  });
+
+  return (
+    <ModuleCard
+      title="Color Matrix"
+      variant="builtin"
+      moduleId="colorMatrix"
+      enabled={moduleConfig()?.enabled ?? false}
+      onToggle={() => toggleModule("colorMatrix")}
+    >
+      <label class="flex flex-col gap-1">
+        <span class="text-xs text-white/50">
+          Saturation: {saturation().toFixed(2)}
+        </span>
+        <input
+          type="range"
+          min="-1"
+          max="1"
+          step="0.01"
+          value={saturation()}
+          onInput={(e) => setParameter("colorMatrix", "saturation", parseFloat(e.currentTarget.value))}
+          class="w-full"
+        />
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="text-xs text-white/50">Hue: {hue()}°</span>
+        <input
+          type="range"
+          min="0"
+          max="360"
+          step="1"
+          value={hue()}
+          onInput={(e) => setParameter("colorMatrix", "hue", parseFloat(e.currentTarget.value))}
+          class="w-full"
+        />
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="text-xs text-white/50">Contrast: {contrast().toFixed(2)}</span>
+        <input
+          type="range"
+          min="-1"
+          max="2"
+          step="0.01"
+          value={contrast()}
+          onInput={(e) => setParameter("colorMatrix", "contrast", parseFloat(e.currentTarget.value))}
+          class="w-full"
+        />
+      </label>
+    </ModuleCard>
+  );
+}
